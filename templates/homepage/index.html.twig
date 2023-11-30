@@ -8,8 +8,20 @@
     <h1 class="text-2xl font-bold mb-4">Homepage</h1>
     <a href="{{ path('random_images') }}" class="btn btn-primary">Mostra 10 Immagini Random</a>
 
-    <button id="toggleButton" onclick="toggleViews()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Toggle
-        View</button>
+    <div class="flex mt-4">
+        <button id="toggleButton" onclick="toggleViews()" class="mr-4 bg-blue-500 text-white px-4 py-2 rounded">Toggle
+            View</button>
+        <div class="flex">
+            <button id="sortButton" onclick="sortImages('title', 'asc')"
+                class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina Titolo A-Z</button>
+            <button onclick="sortImages('title', 'desc')" class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina
+                Titolo Z-A</button>
+            <button onclick="sortImages('date', 'desc')" class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina
+                Data Recente</button>
+            <button onclick="sortImages('date', 'asc')" class="bg-green-500 text-white px-4 py-2 rounded">Ordina Data
+                Vecchia</button>
+        </div>
+    </div>
 
     <div id="tableView" {% if viewMode=='table' %}style="display: block;" {% else %}style="display: none;" {% endif %}>
         <h2 class="text-xl font-bold mb-2">Table View</h2>
@@ -19,14 +31,19 @@
                     <th class="px-4 py-2">Title</th>
                     <th class="px-4 py-2">Image</th>
                     <th class="px-4 py-2">Date</th>
+                    <th class="px-4 py-2">Azioni</th>
                 </tr>
             </thead>
             <tbody>
                 {% for post in posts %}
-                <tr>
+                <tr id="post-{{ post.id }}">
                     <td class="border px-4 py-2">{{ post.title }}</td>
                     <td class="border px-4 py-2"><img src="{{ post.image }}" alt="Image"></td>
                     <td class="border px-4 py-2">{{ post.date|date('d/m/Y') }}</td>
+                    <td class="border px-4 py-2  flex justify-center"><button
+                            class=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            onclick="excludePost('{{ post.id }}')">Nascondi</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -42,6 +59,8 @@
                 <img src="{{ post.image }}" alt="Image" class="mb-2">
                 <h5 class="text-lg font-bold mb-2">{{ post.title }}</h5>
                 <p class="text-gray-600">{{ post.date|date('d/m/Y') }}</p>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onclick="excludeImage('{{ post.id }}')">Nascondi</button>
             </div>
             {% endfor %}
         </div>
@@ -70,6 +89,52 @@
             history.pushState({}, null, "?view=grid");
         }
     }
+
+    // Funzione per ottenere l'elenco delle immagini escluse dalla memoria locale
+    function getExcludedPosts() {
+        const excludedPosts = localStorage.getItem('excludedPosts');
+        return excludedPosts ? JSON.parse(excludedPosts) : [];
+    }
+
+    // Funzione per salvare l'elenco delle immagini escluse nella memoria locale
+    function saveExcludedPosts(excludedPosts) {
+        localStorage.setItem('excludedPosts', JSON.stringify(excludedPosts));
+    }
+
+    // Funzione per gestire il clic del pulsante di esclusione di un'immagine
+    function excludePost(postId) {
+        console.log('Escludi immagine con ID:', postId);
+        const excludedPosts = getExcludedPosts();
+
+        // Aggiungi l'ID dell'immagine all'elenco delle immagini escluse se non è già presente
+        if (!excludedPosts.includes(postId)) {
+            excludedPosts.push(postId);
+            saveExcludedPosts(excludedPosts);
+        }
+
+        // Esegui l'aggiornamento visuale o altre azioni necessarie
+        updateVisuals();
+    }
+
+    // Funzione per controllare e aggiornare la visualizzazione delle immagini escluse
+    function updateVisuals() {
+        const excludedPosts = getExcludedPosts();
+        console.log('Immagini escluse:', excludedPosts);
+
+        // Implementa la logica per escludere visivamente le immagini in base all'elenco delle immagini escluse
+        excludedPosts.forEach(postId => {
+            const postElement = document.getElementById(`post-${postId}`);
+            if (postElement) {
+                postElement.style.display = 'none';
+            }
+        });
+    }
+
+    // Esegui l'aggiornamento visuale al caricamento della pagina
+    document.addEventListener("DOMContentLoaded", function () {
+        updateVisuals();
+    });
+
 </script>
 
 
