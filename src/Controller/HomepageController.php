@@ -15,10 +15,22 @@ class HomepageController extends AbstractController
     public function index(PostRepository $postRepository, PaginatorInterface $paginator, Request $request): Response
     {
         $viewMode = $request->query->get('view', 'table');
+        $searchTerm = $request->query->get('search');
 
-        $query = $postRepository->createQueryBuilder('i')
-            ->orderBy('i.id', 'DESC')
-            ->getQuery();
+        // Utilizza una condizione per determinare quale query utilizzare
+        if ($searchTerm) {
+            // Se è presente un termine di ricerca, crea una query con il filtro
+            $query = $postRepository->createQueryBuilder('i')
+                ->where('i.title LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%')
+                ->orderBy('i.id')
+                ->getQuery();
+        } else {
+            // Altrimenti, utilizza la query senza filtri
+            $query = $postRepository->createQueryBuilder('i')
+                ->orderBy('i.id')
+                ->getQuery();
+        }
 
         $posts = $paginator->paginate(
             $query, // Query da paginare

@@ -6,6 +6,12 @@
 
 <div class="container mx-auto">
     <h1 class="text-2xl font-bold mb-4">Homepage</h1>
+    <!-- Aggiungi il campo di input per la ricerca -->
+    <input type="text" id="searchInput" placeholder="Cerca per titolo" onkeypress="handleKeyPress(event)">
+
+    <!-- Aggiungi il pulsante per avviare la ricerca -->
+    <button class="mr-4 bg-blue-500 text-white px-4 py-2 rounded" onclick="searchImages()">Cerca</button>
+
     <a href="{{ path('random_images') }}" class="btn btn-primary">Mostra 10 Immagini Random</a>
 
     <div class="flex mt-4">
@@ -134,6 +140,25 @@
     document.addEventListener("DOMContentLoaded", function () {
         updateVisuals();
     });
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            searchImages();
+        }
+    }
+
+    function searchImages() {
+        // Ottieni il valore dal campo di input
+        var searchTerm = document.getElementById('searchInput').value;
+
+        // Costruisci l'URL con il parametro di ricerca
+        var currentUrl = window.location.href;
+        var separator = currentUrl.includes('?') ? '&' : '?';
+        var newUrl = currentUrl + separator + 'search=' + searchTerm;
+
+        // Aggiorna l'URL per includere il parametro di ricerca
+        window.location.href = newUrl;
+    }
 
 </script>
 
