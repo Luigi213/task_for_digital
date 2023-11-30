@@ -9,7 +9,7 @@
     <button id="toggleButton" onclick="toggleViews()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Toggle
         View</button>
 
-    <div id="tableView">
+    <div id="tableView" {% if viewMode=='table' %}style="display: block;" {% else %}style="display: none;" {% endif %}>
         <h2 class="text-xl font-bold mb-2">Table View</h2>
         <table class="table-auto w-full">
             <thead>
@@ -31,7 +31,8 @@
         </table>
     </div>
 
-    <div id="gridView" class="hidden">
+    <div id="gridView" {% if viewMode=='grid' %}style="display: block;" {% else %}style="display: none;" {% endif %}
+        class="hidden">
         <h2 class="text-xl font-bold mb-2">Grid View</h2>
         <div class="grid grid-cols-3 gap-4">
             {% for post in posts %}
@@ -50,7 +51,6 @@
     </div>
 </div>
 
-
 <script>
     function toggleViews() {
         var tableView = document.getElementById('tableView');
@@ -59,9 +59,13 @@
         if (tableView.style.display === 'none') {
             tableView.style.display = 'block';
             gridView.style.display = 'none';
+            // Aggiorna il parametro nell'URL o lato server per salvare lo stato della vista
+            history.pushState({}, null, "?view=table");
         } else {
             tableView.style.display = 'none';
             gridView.style.display = 'block';
+            // Aggiorna il parametro nell'URL o lato server per salvare lo stato della vista
+            history.pushState({}, null, "?view=grid");
         }
     }
 </script>

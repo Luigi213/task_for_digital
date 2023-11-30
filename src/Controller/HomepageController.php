@@ -14,6 +14,8 @@ class HomepageController extends AbstractController
     #[Route('/homepage', name: 'app_homepage')]
     public function index(PostRepository $postRepository, PaginatorInterface $paginator, Request $request): Response
     {
+        $viewMode = $request->query->get('view', 'table');
+
         $query = $postRepository->createQueryBuilder('i')
             ->orderBy('i.id', 'DESC')
             ->getQuery();
@@ -26,6 +28,9 @@ class HomepageController extends AbstractController
 
         return $this->render('homepage/index.html.twig', [
             'posts' => $posts,
+            'viewMode' => $viewMode
         ]);
     }
+
+    // #[Route('/random', name: 'app_random')]
 }
