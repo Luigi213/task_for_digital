@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomepageController!{% endblock %}
+
+{% block body %}
+
+<div class="container mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Radompage</h1>
+    <a href="{{ path('app_homepage') }}" class="btn btn-primary">Torna in home</a>
+
+    <div class="grid grid-cols-3 gap-4">
+        {% for randomImage in randomImages %}
+        <div class="border p-4">
+            <img src="{{ randomImage.image }}" alt="Image" class="mb-2">
+            <h5 class="text-lg font-bold mb-2">{{ randomImage.title }}</h5>
+            <p class="text-gray-600">{{ randomImage.date|date('d/m/Y') }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}

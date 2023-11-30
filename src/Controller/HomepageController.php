@@ -32,5 +32,13 @@ class HomepageController extends AbstractController
         ]);
     }
 
-    // #[Route('/random', name: 'app_random')]
+    #[Route('/random_images', name: 'random_images')]
+    public function showRandomImages(PostRepository $postRepository): Response
+    {
+        $randomImages = $postRepository->getRandomImages(10); // Sostituisci con il tuo metodo per ottenere immagini random
+
+        return $this->render('homepage/random_images.html.twig', [
+            'randomImages' => $randomImages,
+        ]);
+    }
 }
