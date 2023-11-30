@@ -3,18 +3,68 @@
 {% block title %}Hello HomepageController!{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+<div class="container mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Homepage</h1>
+    <button id="toggleButton" onclick="toggleViews()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Toggle
+        View</button>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/reyes/OneDrive/Documenti/symfony-project/task_for_digital/src/Controller/HomepageController.php'|file_link(0) }}">src/Controller/HomepageController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/reyes/OneDrive/Documenti/symfony-project/task_for_digital/templates/homepage/index.html.twig'|file_link(0) }}">templates/homepage/index.html.twig</a></code></li>
-    </ul>
+    <div id="tableView">
+        <h2 class="text-xl font-bold mb-2">Table View</h2>
+        <table class="table-auto w-full">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2">Title</th>
+                    <th class="px-4 py-2">Image</th>
+                    <th class="px-4 py-2">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                    <td class="border px-4 py-2">{{ post.title }}</td>
+                    <td class="border px-4 py-2"><img src="{{ post.image }}" alt="Image"></td>
+                    <td class="border px-4 py-2">{{ post.date|date('d/m/Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="gridView" class="hidden">
+        <h2 class="text-xl font-bold mb-2">Grid View</h2>
+        <div class="grid grid-cols-3 gap-4">
+            {% for post in posts %}
+            <div class="border p-4">
+                <img src="{{ post.image }}" alt="Image" class="mb-2">
+                <h5 class="text-lg font-bold mb-2">{{ post.title }}</h5>
+                <p class="text-gray-600">{{ post.date|date('d/m/Y') }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# Visualizza la paginazione #}
+    <div class="pagination justify-center flex">
+        {{ knp_pagination_render(posts) }}
+    </div>
 </div>
+
+
+<script>
+    function toggleViews() {
+        var tableView = document.getElementById('tableView');
+        var gridView = document.getElementById('gridView');
+
+        if (tableView.style.display === 'none') {
+            tableView.style.display = 'block';
+            gridView.style.display = 'none';
+        } else {
+            tableView.style.display = 'none';
+            gridView.style.display = 'block';
+        }
+    }
+</script>
+
+
 {% endblock %}
