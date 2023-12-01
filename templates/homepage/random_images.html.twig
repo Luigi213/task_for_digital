@@ -6,7 +6,7 @@
 
 <div class="container mx-auto">
     <h1 class="text-2xl font-bold mb-4 flex justify-center">Radompage</h1>
-    <button href="{{ path('app_homepage') }}" class="mr-4 bg-blue-500 text-white px-4 py-2 rounded mb-4">Torna in home</button>
+    <button class="mr-4 bg-blue-500 text-white px-4 py-2 rounded mb-4"> <a href="{{ path('app_homepage') }}">Torna in home</a></button>
 
     <div class="grid grid-cols-3 gap-4">
         {% for randomImage in randomImages %}

@@ -10,21 +10,21 @@
     <input type="text" id="searchInput" placeholder="Cerca per titolo" onkeypress="handleKeyPress(event)">
 
     <!-- Aggiungi il pulsante per avviare la ricerca -->
-    <button class="mr-4 bg-blue-500 text-white px-4 py-2 rounded" onclick="searchImages()">Cerca</button>
-
+    <button class="mr-4 bg-blue-500 text-white px-4 py-2 rounded" onclick="searchPosts()">Cerca</button>
+    
     <a href="{{ path('random_images') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Mostra 10 post Random</a>
 
     <div class="flex mt-4">
         <button id="toggleButton" onclick="toggleViews()" class="mr-4 bg-blue-500 text-white px-4 py-2 rounded">Toggle
             View</button>
         <div class="flex">
-            <button id="sortButton" onclick="sortImages('title', 'asc')"
-                class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina Titolo A-Z</button>
-            <button onclick="sortImages('title', 'desc')" class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina
-                Titolo Z-A</button>
-            <button onclick="sortImages('date', 'desc')" class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina
+            <button onclick="sortPosts('title', 'desc')" class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina
+                Titolo A-Z</button>
+            <button id="sortButton" onclick="sortPosts('title', 'asc')"
+                class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina Titolo Z-A</button>
+            <button onclick="sortPosts('date', 'desc')" class="mr-2 bg-green-500 text-white px-4 py-2 rounded">Ordina
                 Data Recente</button>
-            <button onclick="sortImages('date', 'asc')" class="bg-green-500 text-white px-4 py-2 rounded">Ordina Data
+            <button onclick="sortPosts('date', 'asc')" class="bg-green-500 text-white px-4 py-2 rounded">Ordina Data
                 Vecchia</button>
         </div>
     </div>
@@ -111,12 +111,12 @@
         localStorage.setItem('excludedPosts', JSON.stringify(excludedPosts));
     }
 
-    // Funzione per gestire il clic del pulsante di esclusione di un'immagine
+    // Funzione per gestire il clic del pulsante di esclusione di post
     function excludePost(postId) {
-        console.log('Escludi immagine con ID:', postId);
+
         const excludedPosts = getExcludedPosts();
 
-        // Aggiungi l'ID dell'immagine all'elenco delle post escluse se non è già presente
+        // Aggiungi l'ID post all'elenco delle post escluse se non è già presente
         if (!excludedPosts.includes(postId)) {
             excludedPosts.push(postId);
             saveExcludedPosts(excludedPosts);
@@ -129,7 +129,6 @@
     // Funzione per controllare e aggiornare la visualizzazione delle post escluse
     function updateView() {
         const excludedPosts = getExcludedPosts();
-        console.log('post escluse:', excludedPosts);
 
         // Implementa la logica per escludere visivamente le post in base all'elenco delle post escluse
         excludedPosts.forEach(postId => {
@@ -152,11 +151,11 @@
 
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
-            searchImages();
+            searchPosts();
         }
     }
 
-    function searchImages() {
+    function searchPosts() {
         // Ottieni il valore dal campo di input
         let searchTerm = document.getElementById('searchInput').value;
 
@@ -181,18 +180,16 @@
 
         // Chiamata alla funzione di ordinamento in base all'ordine corrente
         if (currentSortOrder === 'asc') {
-            sortImages('title', 'asc');
+            sortPosts('title', 'asc');
         } else {
-            sortImages('title', 'desc');
+            sortPosts('title', 'desc');
         }
     }
 
     // Funzione per ordinare le post lato client
-    function sortImages(field, order) {
+    function sortPosts(field, order) {
     // Recupera l'array delle post dal tuo template
     let newArrayPost = {{ postsData | raw }};
-
-    console.log(newArrayPost)
 
     // Ordina l'array in base al campo e all'ordine specificati
     newArrayPost.sort(function (a, b) {
@@ -214,26 +211,24 @@
 // Funzione per aggiornare la visualizzazione delle post
 function updateVisuals(newArrayPost, viewContainerId) {
     // Seleziona il contenitore delle post nel DOM
-    let imagesContainer = document.getElementById(viewContainerId);
+    let postsContainer = document.getElementById(viewContainerId);
 
     // Verifica che newArrayPost sia definito
     if (newArrayPost) {
         // Rimuovi tutte le post attualmente presenti nel contenitore
-        while (imagesContainer.firstChild) {
-            imagesContainer.removeChild(imagesContainer.firstChild);
+        while (postsContainer.firstChild) {
+            postsContainer.removeChild(postsContainer.firstChild);
         }
 
-        console.log(imagesContainer)
-
-        // Itera sull'array ordinato e crea nuovi elementi immagine nel DOM
+        // Itera sull'array ordinato e crea nuovi elementi post nel DOM
         newArrayPost.forEach(post => {
             let postElement = createPostElement(post, viewContainerId);
-            imagesContainer.appendChild(postElement);
+            postsContainer.appendChild(postElement);
         });
     }
 }
 
-// Funzione per creare un elemento immagine nel DOM
+// Funzione per creare un elemento post nel DOM
 function createPostElement(post, viewMode) {
     // Crea un elemento <tr> o <div> a seconda del tuo layout
     let postElement;
@@ -246,7 +241,7 @@ function createPostElement(post, viewMode) {
         postElement.className = `post-${post.id}`;
     }
 
-    // Aggiungi il contenuto dell'elemento immagine
+    // Aggiungi il contenuto dell'elemento post
     if (viewMode === 'table') {
         postElement.innerHTML = `
             <td class="border px-4 py-2">${post.title}</td>
