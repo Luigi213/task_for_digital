@@ -189,7 +189,7 @@
     // Funzione per ordinare le post lato client
     function sortPosts(field, order) {
     // Recupera l'array delle post dal tuo template
-    let newArrayPost = {{ postsData | raw }};
+    let newArrayPost = JSON.parse('{{ postsData | raw }}');
 
     // Ordina l'array in base al campo e all'ordine specificati
     newArrayPost.sort(function (a, b) {
