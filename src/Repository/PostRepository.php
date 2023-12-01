@@ -24,6 +24,8 @@ class PostRepository extends ServiceEntityRepository
 
     public function getRandomImages(int $limit): array
     {
+        // STEP 5 Prevedere un pulsante che mostra 10 immagini random tra tutte quelle presenti a DB
+
         $entityManager = $this->getEntityManager();
 
         // Ottieni il numero totale di entità nella tabella
@@ -34,6 +36,9 @@ class PostRepository extends ServiceEntityRepository
         // Genera un set casuale di indici
         $randomIndexes = range(0, $totalEntities - 1);
         shuffle($randomIndexes);
+
+        // La lunghezza effettiva dell'array di indici generati
+        $limit = min(10, count($randomIndexes));
 
         // Seleziona le entità corrispondenti agli indici generati casualmente
         $query = $entityManager->createQuery(

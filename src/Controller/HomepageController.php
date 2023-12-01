@@ -7,12 +7,13 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class HomepageController extends AbstractController
 {
     #[Route('/homepage', name: 'app_homepage')]
-    public function index(PostRepository $postRepository, PaginatorInterface $paginator, Request $request): Response
+    public function index(PostRepository $postRepository, PaginatorInterface $paginator, Request $request, SerializerInterface $serializer): Response
     {
         $viewMode = $request->query->get('view', 'table');
         $searchTerm = $request->query->get('search');
@@ -38,16 +39,20 @@ class HomepageController extends AbstractController
             10 // Numero di elementi per pagina
         );
 
+        $postsData = $serializer->serialize($posts, 'json'); // Utilizza il servizio di serializzazione
+
+
         return $this->render('homepage/index.html.twig', [
             'posts' => $posts,
-            'viewMode' => $viewMode
+            'viewMode' => $viewMode,
+            'postsData' => $postsData
         ]);
     }
 
     #[Route('/random_images', name: 'random_images')]
     public function showRandomImages(PostRepository $postRepository): Response
     {
-        $randomImages = $postRepository->getRandomImages(10); // Sostituisci con il tuo metodo per ottenere immagini random
+        $randomImages = $postRepository->getRandomImages(10);
 
         return $this->render('homepage/random_images.html.twig', [
             'randomImages' => $randomImages,

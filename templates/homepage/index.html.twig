@@ -5,14 +5,14 @@
 {% block body %}
 
 <div class="container mx-auto">
-    <h1 class="text-2xl font-bold mb-4">Homepage</h1>
+    <h1 class="text-2xl font-bold mb-4 flex justify-center">Homepage</h1>
     <!-- Aggiungi il campo di input per la ricerca -->
     <input type="text" id="searchInput" placeholder="Cerca per titolo" onkeypress="handleKeyPress(event)">
 
     <!-- Aggiungi il pulsante per avviare la ricerca -->
     <button class="mr-4 bg-blue-500 text-white px-4 py-2 rounded" onclick="searchImages()">Cerca</button>
 
-    <a href="{{ path('random_images') }}" class="btn btn-primary">Mostra 10 Immagini Random</a>
+    <a href="{{ path('random_images') }}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Mostra 10 post Random</a>
 
     <div class="flex mt-4">
         <button id="toggleButton" onclick="toggleViews()" class="mr-4 bg-blue-500 text-white px-4 py-2 rounded">Toggle
@@ -30,7 +30,7 @@
     </div>
 
     <div id="tableView" {% if viewMode=='table' %}style="display: block;" {% else %}style="display: none;" {% endif %}>
-        <h2 class="text-xl font-bold mb-2">Table View</h2>
+        <h2 class="text-xl font-bold mb-2 mt-2">Table View</h2>
         <table class="table-auto w-full">
             <thead>
                 <tr>
@@ -40,13 +40,13 @@
                     <th class="px-4 py-2">Azioni</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="table">
                 {% for post in posts %}
-                <tr id="post-{{ post.id }}">
+                <tr class="post-{{ post.id }}">
                     <td class="border px-4 py-2">{{ post.title }}</td>
                     <td class="border px-4 py-2"><img src="{{ post.image }}" alt="Image"></td>
                     <td class="border px-4 py-2">{{ post.date|date('d/m/Y') }}</td>
-                    <td class="border px-4 py-2  flex justify-center"><button
+                    <td class="border px-4 py-2 "><button
                             class=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                             onclick="excludePost('{{ post.id }}')">Nascondi</button>
                     </td>
@@ -58,15 +58,15 @@
 
     <div id="gridView" {% if viewMode=='grid' %}style="display: block;" {% else %}style="display: none;" {% endif %}
         class="hidden">
-        <h2 class="text-xl font-bold mb-2">Grid View</h2>
-        <div class="grid grid-cols-3 gap-4">
+        <h2 class="text-xl font-bold mb-2 mt-2">Grid View</h2>
+        <div id="grid" class="grid grid-cols-3 gap-4">
             {% for post in posts %}
-            <div class="border p-4">
+            <div class="border p-4 post-{{ post.id }}" >
                 <img src="{{ post.image }}" alt="Image" class="mb-2">
                 <h5 class="text-lg font-bold mb-2">{{ post.title }}</h5>
                 <p class="text-gray-600">{{ post.date|date('d/m/Y') }}</p>
                 <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onclick="excludeImage('{{ post.id }}')">Nascondi</button>
+                    onclick="excludePost('{{ post.id }}')">Nascondi</button>
             </div>
             {% endfor %}
         </div>
@@ -79,9 +79,11 @@
 </div>
 
 <script>
+    // STEP 4 Nella homepage l’utente avrà la possibilità di visualizzare le immagini come lista (tabella) in cui ogni riga ha: titolo, immagine, data oppure come una griglia di “card” in cui ogni card avrà immagine, titolo e data. Sarà quindi necessario un pulsante per passare dalla visualizzazione tabellare a griglia e viceversa
+
     function toggleViews() {
-        var tableView = document.getElementById('tableView');
-        var gridView = document.getElementById('gridView');
+        let tableView = document.getElementById('tableView');
+        let gridView = document.getElementById('gridView');
 
         if (tableView.style.display === 'none') {
             tableView.style.display = 'block';
@@ -96,13 +98,15 @@
         }
     }
 
-    // Funzione per ottenere l'elenco delle immagini escluse dalla memoria locale
+    //STEP 7 L’utente ha un pulsante per escludere una o più immagini. Se ad esempio esclude la prima, quando ricarica la pagina quell’immagine deve essere esclusa. Se l’utente fa il refresh della pagina, il sito deve mantenere escluse le immagini che l’utente aveva escluso
+
+    // Funzione per ottenere l'elenco delle post escluse dalla memoria locale
     function getExcludedPosts() {
         const excludedPosts = localStorage.getItem('excludedPosts');
         return excludedPosts ? JSON.parse(excludedPosts) : [];
     }
 
-    // Funzione per salvare l'elenco delle immagini escluse nella memoria locale
+    // Funzione per salvare l'elenco delle post escluse nella memoria locale
     function saveExcludedPosts(excludedPosts) {
         localStorage.setItem('excludedPosts', JSON.stringify(excludedPosts));
     }
@@ -112,34 +116,39 @@
         console.log('Escludi immagine con ID:', postId);
         const excludedPosts = getExcludedPosts();
 
-        // Aggiungi l'ID dell'immagine all'elenco delle immagini escluse se non è già presente
+        // Aggiungi l'ID dell'immagine all'elenco delle post escluse se non è già presente
         if (!excludedPosts.includes(postId)) {
             excludedPosts.push(postId);
             saveExcludedPosts(excludedPosts);
         }
 
         // Esegui l'aggiornamento visuale o altre azioni necessarie
-        updateVisuals();
+        updateView();
     }
 
-    // Funzione per controllare e aggiornare la visualizzazione delle immagini escluse
-    function updateVisuals() {
+    // Funzione per controllare e aggiornare la visualizzazione delle post escluse
+    function updateView() {
         const excludedPosts = getExcludedPosts();
-        console.log('Immagini escluse:', excludedPosts);
+        console.log('post escluse:', excludedPosts);
 
-        // Implementa la logica per escludere visivamente le immagini in base all'elenco delle immagini escluse
+        // Implementa la logica per escludere visivamente le post in base all'elenco delle post escluse
         excludedPosts.forEach(postId => {
-            const postElement = document.getElementById(`post-${postId}`);
-            if (postElement) {
-                postElement.style.display = 'none';
+            const postElements = document.getElementsByClassName(`post-${postId}`);
+            // Itera sugli elementi con la stessa classe
+            if(postElements){
+                Array.from(postElements).forEach(postElement => {
+                    postElement.style.display = 'none';
+                });
             }
         });
     }
 
     // Esegui l'aggiornamento visuale al caricamento della pagina
     document.addEventListener("DOMContentLoaded", function () {
-        updateVisuals();
+        updateView();
     });
+
+    // STEP 9 Implementare una ricerca per sito che mostra solamente le immagini che nel titolo hanno la/le parola/e inserite o anche una parte di esse (se ho un’immagine con il titolo “gatti” e cerco “gatt”, l’immagine mi viene restituita tra i risultati.
 
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
@@ -149,16 +158,124 @@
 
     function searchImages() {
         // Ottieni il valore dal campo di input
-        var searchTerm = document.getElementById('searchInput').value;
+        let searchTerm = document.getElementById('searchInput').value;
 
         // Costruisci l'URL con il parametro di ricerca
-        var currentUrl = window.location.href;
-        var separator = currentUrl.includes('?') ? '&' : '?';
-        var newUrl = currentUrl + separator + 'search=' + searchTerm;
+        let currentUrl = window.location.href;
+        let separator = currentUrl.includes('?') ? '&' : '?';
+        let newUrl = currentUrl + separator + 'search=' + searchTerm;
 
         // Aggiorna l'URL per includere il parametro di ricerca
         window.location.href = newUrl;
     }
+
+    //STEP 6 Prevedere un pulsante che cambia l’ordine delle immagini visualizzate; l’ordinamento deve essere per titolo e data; ogni volta che l’utente preme il pulsante le immagini vengono ordinate per titolo  dalla A alla Z, titolo dalla Z alla A, per data dalla più recente in poi, data dalla meno recente in poi). Non deve essere fatta la chiamata al server, l’ordinamento rimane sulle immagini già mostrate nella pagina
+
+    // Dichiarazione di una variabile per tenere traccia dell'ordine corrente
+    let currentSortOrder = 'asc';
+
+    // Funzione per cambiare l'ordine al clic del pulsante
+    function toggleSorting() {
+        // Cambia l'ordine corrente tra 'asc' e 'desc'
+        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+
+        // Chiamata alla funzione di ordinamento in base all'ordine corrente
+        if (currentSortOrder === 'asc') {
+            sortImages('title', 'asc');
+        } else {
+            sortImages('title', 'desc');
+        }
+    }
+
+    // Funzione per ordinare le post lato client
+    function sortImages(field, order) {
+    // Recupera l'array delle post dal tuo template
+    let newArrayPost = {{ postsData | raw }};
+
+    console.log(newArrayPost)
+
+    // Ordina l'array in base al campo e all'ordine specificati
+    newArrayPost.sort(function (a, b) {
+        let aValue = a[field];
+        let bValue = b[field];
+
+        if (order === 'desc') {
+            return aValue.localeCompare(bValue);
+        } else {
+            return bValue.localeCompare(aValue);
+        }
+    });
+
+    // Aggiorna la visualizzazione delle post per entrambe le viste
+    updateVisuals(newArrayPost, 'table');
+    updateVisuals(newArrayPost, 'grid');
+}
+
+// Funzione per aggiornare la visualizzazione delle post
+function updateVisuals(newArrayPost, viewContainerId) {
+    // Seleziona il contenitore delle post nel DOM
+    let imagesContainer = document.getElementById(viewContainerId);
+
+    // Verifica che newArrayPost sia definito
+    if (newArrayPost) {
+        // Rimuovi tutte le post attualmente presenti nel contenitore
+        while (imagesContainer.firstChild) {
+            imagesContainer.removeChild(imagesContainer.firstChild);
+        }
+
+        console.log(imagesContainer)
+
+        // Itera sull'array ordinato e crea nuovi elementi immagine nel DOM
+        newArrayPost.forEach(post => {
+            let postElement = createPostElement(post, viewContainerId);
+            imagesContainer.appendChild(postElement);
+        });
+    }
+}
+
+// Funzione per creare un elemento immagine nel DOM
+function createPostElement(post, viewMode) {
+    // Crea un elemento <tr> o <div> a seconda del tuo layout
+    let postElement;
+    
+    if (viewMode === 'table') {
+        postElement = document.createElement('tr');
+        postElement.className = `border p-4 post-${post.id}`;
+    } else if (viewMode === 'grid') {
+        postElement = document.createElement('div');
+        postElement.className = `post-${post.id}`;
+    }
+
+    // Aggiungi il contenuto dell'elemento immagine
+    if (viewMode === 'table') {
+        postElement.innerHTML = `
+            <td class="border px-4 py-2">${post.title}</td>
+            <td class="border px-4 py-2"><img src="${post.image}" alt="Image"></td>
+            <td class="border px-4 py-2">${formatDate(post.date)}</td>
+            <td class="border px-4 py-2">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onclick="excludePost('${post.id}')">Nascondi</button>
+            </td>                
+        `;
+    } else if (viewMode === 'grid') {
+        postElement.innerHTML = `
+            <img src="${post.image}" alt="Image" class="mb-2">
+            <h5 class="text-lg font-bold mb-2">${post.title}</h5>
+            <p class="text-gray-600">${formatDate(post.date)}</p>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onclick="excludeImage('${post.id}')">Nascondi</button>
+        `;
+    }
+
+    return postElement;
+}
+
+// Funzione di formattazione della data personalizzata
+function formatDate(dateString) {
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const formattedDate = new Date(dateString).toLocaleDateString(undefined, options);
+    return formattedDate;
+}
 
 </script>
 
